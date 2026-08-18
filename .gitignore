@@ -1,0 +1,5 @@
+node_modules/
+.profile/
+output/
+*.log
+.DS_Store
