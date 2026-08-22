@@ -8,21 +8,21 @@ Not a fork of [`microsoft/playwright-mcp`](https://github.com/microsoft/playwrig
 
 ---
 
-## Tiếng Việt — đã làm được gì
+## Capabilities
 
-Agent gắn MCP này có thể:
+An agent connected to this MCP can:
 
-- Mở trang, click, gõ, điền form, hover, kéo thả, upload, dialog, back, tab
-- Đọc accessibility snapshot (không bắt buộc model vision)
-- Cookie / localStorage, screenshot, PDF, chạy JS, xem network
-- Giữ login giữa các phiên (Chrome profile bền)
-- Audit fingerprint (`stealth_audit`), mở bot.sannysoft.com (`stealth_check`)
-- Nhận diện captcha / Cloudflare IUAM; đợi challenge JS thụ động tự hết
-- Proxy, gắn Chrome đang mở (CDP), headed mặc định
+- Open pages, click, type, fill forms, hover, drag & drop, upload files, handle dialogs, navigate back, and manage tabs
+- Read accessibility snapshots (vision model not required)
+- Manage cookies / localStorage, take screenshots, export PDFs, execute JS, and inspect network traffic
+- Persist logins across sessions (persistent Chrome profile)
+- Audit browser fingerprint (`stealth_audit`), open bot.sannysoft.com (`stealth_check`)
+- Detect CAPTCHAs / Cloudflare IUAM; automatically wait for passive JS challenges to resolve
+- Support proxies, attach to an existing running Chrome instance (CDP), headed mode by default
 
-**Chưa / không làm:** giải reCAPTCHA/hCaptcha tương tác, farm token, anti-detect 100%, giả IP (cần proxy).
+**Not supported / Out of scope:** Solving interactive reCAPTCHA/hCaptcha, token farming, 100% anti-detect guarantee, IP spoofing (requires proxy).
 
-Grok đã `mcp doctor` handshake OK, **70 tools**.
+Grok `mcp doctor` handshake verified, **70 tools**.
 
 ---
 
