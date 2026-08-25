@@ -5,21 +5,22 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { EXTRA_NAMES, EXTRA_TOOLS, runExtraTool } from "./extra-tools.mjs";
+import { createToolState, EXTRA_NAMES, EXTRA_TOOLS, runExtraTool } from "./extra-tools.mjs";
 
 /**
  * Official createConnection() already returns a complete MCP Server.
  * We sit a thin wrapper in front: same official tools + extras.
  */
 export async function wrapOfficialServer(officialServer) {
+  const toolState = createToolState();
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-  const client = new Client({ name: "chrome-for-ai-internal", version: "1.0.0" });
+  const client = new Client({ name: "chrome-for-ai-internal", version: "1.1.0" });
 
   await officialServer.connect(serverTransport);
   await client.connect(clientTransport);
 
   const wrapper = new Server(
-    { name: "chrome-for-ai", version: "1.0.0" },
+    { name: "chrome-for-ai", version: "1.1.0" },
     { capabilities: { tools: {} } }
   );
 
@@ -35,7 +36,7 @@ export async function wrapOfficialServer(officialServer) {
     const name = request.params.name;
     const args = request.params.arguments || {};
     if (EXTRA_NAMES.has(name)) {
-      return runExtraTool(name, args, client);
+      return runExtraTool(name, args, client, toolState);
     }
     return client.callTool({ name, arguments: args });
   });

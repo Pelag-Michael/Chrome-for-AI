@@ -1,6 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { EXTRA_NAMES, EXTRA_TOOLS, runExtraTool } from "../src/extra-tools.mjs";
+import {
+  createToolState,
+  EXTRA_NAMES,
+  EXTRA_TOOLS,
+  normalizeRef,
+  parseEvaluatePayload,
+  runExtraTool,
+  smartReadCandidates,
+} from "../src/extra-tools.mjs";
 import { parseCaps, parseBoolean, buildOfficialConfig } from "../src/config.mjs";
 
 test("extra tool names are unique and documented", () => {
@@ -57,4 +65,60 @@ test("stealth_status does not need a browser", async () => {
   assert.equal(body.ok, true);
   assert.ok(body.stealthRuntime.includes("patchright"));
   assert.ok(body.official.includes("@playwright/mcp"));
+});
+
+test("upgrade tool surface is complete", () => {
+  const required = [
+    "browser_snapshot_refs",
+    "browser_click_ref",
+    "browser_fill_ref",
+    "browser_smart_read",
+    "browser_annotated_screenshot",
+    "browser_record_step",
+    "browser_replay_flow",
+  ];
+  for (const name of required) assert.ok(EXTRA_NAMES.has(name), `missing ${name}`);
+  assert.equal(EXTRA_TOOLS.length, 14);
+});
+
+test("refs are normalized and validated", () => {
+  assert.equal(normalizeRef("e12"), "@e12");
+  assert.equal(normalizeRef("@e1"), "@e1");
+  assert.throws(() => normalizeRef("@e0"), /Invalid ref/);
+  assert.throws(() => normalizeRef("button"), /Invalid ref/);
+});
+
+test("smart read candidates prefer target markdown and nearest llms indexes", () => {
+  assert.deepEqual(smartReadCandidates("https://example.com/docs/guide"), [
+    "https://example.com/docs/guide",
+    "https://example.com/docs/guide.md",
+    "https://example.com/docs/llms.txt",
+    "https://example.com/llms.txt",
+  ]);
+  assert.throws(() => smartReadCandidates("file:///etc/passwd"), /http\(s\)/);
+});
+
+test("browser_evaluate markdown envelope is parsed", () => {
+  const result = { content: [{ type: "text", text: '### Result\n{"ok":true,"count":2}\n### Ran Playwright code\n```js\nawait page.evaluate("...");\n```' }] };
+  assert.deepEqual(parseEvaluatePayload(result), { ok: true, count: 2 });
+});
+
+test("recorded flows stay in explicit session state and replay", async () => {
+  const state = createToolState();
+  const calls = [];
+  const client = {
+    async callTool(request) {
+      calls.push(request);
+      return { content: [{ type: "text", text: '{"ok":true}' }] };
+    },
+  };
+  await runExtraTool("browser_record_step", { flow: "login", action: "snapshot", reset: true }, client, state);
+  await runExtraTool("browser_record_step", { flow: "login", action: "fill", ref: "@e2", text: "secret" }, client, state);
+  const replay = await runExtraTool("browser_replay_flow", { flow: "login" }, client, state);
+  const body = JSON.parse(replay.content[0].text);
+  assert.equal(body.ok, true);
+  assert.equal(body.completed, 2);
+  assert.equal(state.flows.get("login")[1].text, "secret");
+  assert.ok(calls.filter((call) => call.name === "browser_evaluate").length >= 3);
+  assert.equal(createToolState().flows.size, 0);
 });

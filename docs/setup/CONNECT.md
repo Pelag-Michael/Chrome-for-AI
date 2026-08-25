@@ -63,7 +63,7 @@ Sau khi gắn, **restart agent** (hoặc refresh MCP). Thử prompt:
 Call stealth_status, then open https://example.com and run stealth_audit.
 ```
 
-Phải thấy ~70 tools: `browser_*` + `stealth_*` + `captcha_detect` + `challenge_wait` + `human_*`.
+Phải thấy 77 tools: 63 official + 14 extra, gồm `browser_*`, `stealth_*`, `captcha_detect`, `challenge_wait`, và `human_*`.
 
 ---
 
@@ -99,7 +99,7 @@ Rồi tăng timeout trong `config.toml` như trên. Trong TUI: `/mcps` → `r`. 
 grok mcp doctor chrome-for-ai
 ```
 
-Kỳ vọng: `handshake OK`, `70 tools discovered`.
+Kỳ vọng: `handshake OK`, `77 tools discovered`.
 
 ---
 

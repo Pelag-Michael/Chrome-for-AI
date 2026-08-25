@@ -56,7 +56,7 @@ Wrapper:
 
 1. Nối official server với một `Client` nội bộ qua `InMemoryTransport`.
 2. Expose một `Server` mới ra stdio.
-3. `tools/list` = tool official + 7 extra.
+3. `tools/list` = 63 tool official + 14 extra.
 4. `tools/call` extra thì `src/extra-tools.mjs` xử lý (thường gọi lại `browser_evaluate` / `browser_navigate` official). Tool còn lại forward nguyên xi.
 
 Không copy-paste logic click/type. Khi Microsoft cập nhật tool, chỉ cần bump `@playwright/mcp` (pin tương thích Patchright).
@@ -114,6 +114,13 @@ Patchright vá:
 | `challenge_wait` | Poll đến khi interstitial Cloudflare biến |
 | `human_wait` | Delay ngẫu nhiên |
 | `human_scroll` | `scrollBy` smooth |
+| `browser_snapshot_refs` | Lọc phần tử tương tác trong viewport, gán ref tạm `@e1` |
+| `browser_click_ref` | Click theo ref và hit-test overlay/banner che |
+| `browser_fill_ref` | Fill input/textarea/contenteditable theo ref |
+| `browser_smart_read` | Ưu tiên Markdown/`llms.txt`, fallback DOM → Markdown |
+| `browser_annotated_screenshot` | Screenshot viewport với hộp và nhãn Set-of-Marks |
+| `browser_record_step` | Ghi bước vào flow trong RAM của MCP session |
+| `browser_replay_flow` | Replay flow; tự refresh refs trước click/fill |
 
 Extra tools **không** giải captcha tương tác, không farm token. Challenge JS thụ động thường tự qua nhờ Patchright.
 
@@ -130,6 +137,8 @@ Extra tools **không** giải captcha tương tác, không farm token. Challenge
 - Proxy, attach CDP, headed/headless.
 - Giảm mạnh tín hiệu automation so với Playwright MCP trần.
 - Detect captcha / đợi Cloudflare IUAM.
+- Snapshot viewport gọn, click/fill theo ref và phát hiện vật cản.
+- Smart read, screenshot có nhãn, record/replay flow không cần reasoning giữa từng bước.
 
 ### Không làm được (cố ý)
 
@@ -146,9 +155,10 @@ Extra tools **không** giải captcha tương tác, không farm token. Challenge
 src/index.mjs          entry stdio
 src/wrap.mjs           gộp official + extra
 src/config.mjs         Chrome, profile, capabilities, env
-src/extra-tools.mjs    7 tool stealth/captcha/human
+src/extra-tools.mjs    14 tool stealth/captcha/token-efficient control
 scripts/doctor.mjs     kiểm tra alias + Chrome + config
 scripts/smoke.mjs      list tools + stealth_status in-process
+scripts/live-smoke.mjs Chrome isolated: refs/click/fill/read/screenshot/replay
 scripts/install-grok.mjs  ghi ~/.grok/config.toml
 test/                  unit test không cần browser
 ```
@@ -162,7 +172,7 @@ Node             >= 18 (đã test 25)
 MCP protocol     2025-11-25
 ```
 
-Bump official MCP: chỉ khi Patchright đã ship cùng minor Playwright. Sau đó `npm test` + `npm run smoke` + `node scripts/doctor.mjs`.
+Bump official MCP: chỉ khi Patchright đã ship cùng minor Playwright. Sau đó `npm test` + `npm run smoke` + `npm run live-smoke` + `node scripts/doctor.mjs`.
 
 ## Bảo mật
 

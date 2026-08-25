@@ -1,6 +1,6 @@
 {
   "name": "chrome-for-ai",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": false,
   "description": "Official Microsoft Playwright MCP + Patchright stealth + extra anti-bot tools for Grok, Antigravity, Codex, and other MCP agents.",
   "repository": {
@@ -18,6 +18,7 @@
     "doctor": "node scripts/doctor.mjs",
     "install-grok": "node scripts/install-grok.mjs",
     "smoke": "node scripts/smoke.mjs",
+    "live-smoke": "node scripts/live-smoke.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "engines": {

@@ -26,6 +26,19 @@ for (const name of requiredOfficial) {
   if (!names.includes(name)) throw new Error("missing official tool " + name);
 }
 
+const requiredExtras = [
+  "browser_snapshot_refs",
+  "browser_click_ref",
+  "browser_fill_ref",
+  "browser_smart_read",
+  "browser_annotated_screenshot",
+  "browser_record_step",
+  "browser_replay_flow",
+];
+for (const name of requiredExtras) {
+  if (!names.includes(name)) throw new Error("missing extra tool " + name);
+}
+
 const status = await client.callTool({ name: "stealth_status", arguments: {} });
 const text = status.content?.map((c) => c.text).join("\n") || "";
 if (!text.includes("patchright")) throw new Error("stealth_status missing patchright");
